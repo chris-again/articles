@@ -11,6 +11,7 @@ import {
 const state = {
     currentIndex: 0,
     currentCues: [],
+    activeCueIdx: -1,
     isLoaded: false,
     currentTitle: "",
     isCurrentArticleRead: false
@@ -64,6 +65,7 @@ async function prepareMedia(index) {
     state.currentIndex = index;
     state.isLoaded = false;
     state.currentCues = [];
+    state.activeCueIdx = -1; // Reset subtitle search
 
     const item = mediaLinks[state.currentIndex];
 
@@ -72,6 +74,10 @@ async function prepareMedia(index) {
     dom.video.src = "";
     dom.btnPlay.textContent = "▶";
     dom.subOverlay.textContent = "";
+
+    // Reset progress bar
+    dom.progressFilled.style.width = "0%";
+    dom.progressFilled.textContent = "";
 
     // Get title from titleMap
     const mappedTitle = window.titleMap[item.id];
@@ -150,18 +156,37 @@ function togglePlay() {
     }
 }
 
+let activeCueIdx = 0;
+
 function handleTimeUpdate() {
     if (!state.isLoaded) return;
 
     const time = dom.video.currentTime;
-    const activeCue = state.currentCues.find(c => time >= c.start && time <= c.end);
+    let activeCue = null;
 
-    dom.subOverlay.textContent = activeCue ? activeCue.text : "";
+    // 1. Is the current subtitle still valid?
+    const current = state.currentCues[state.activeCueIdx];
+    if (current && time >= current.start && time <= current.end) {
+        activeCue = current;
+    } else {
+        // 2. Only look for a new subtitle if the current one expired
+        // We look for the index so we can save it for the next frame
+        const newIdx = state.currentCues.findIndex(c => time >= c.start && time <= c.end);
+        state.activeCueIdx = newIdx;
+        activeCue = state.currentCues[newIdx];
+    }
 
-    // Update progress bar with percentage
-    const percent = (dom.video.currentTime / dom.video.duration) * 100;
+    // 3. Only update the HTML if the text actually changed
+    const newText = activeCue ? activeCue.text : "";
+    if (dom.subOverlay.textContent !== newText) {
+        dom.subOverlay.textContent = newText;
+    }
+
+    // 4. UI: Progress bar update
+    const percent = (time / dom.video.duration) * 100;
     dom.progressFilled.style.width = `${percent}%`;
-    dom.progressFilled.textContent = `${Math.round(percent)}%`;
+    dom.progressText = document.getElementById('progress-text');
+    dom.progressText.textContent = `${Math.round(percent)}%`;
 }
 
 function handleProgressClick(e) {
@@ -217,7 +242,10 @@ function updateNavigationButtons() {
 }
 
 function skip(seconds) {
-    if (state.isLoaded) dom.video.currentTime += seconds;
+    if (state.isLoaded) {
+        dom.video.currentTime += seconds;
+        state.activeCueIdx = -1; // Force search after skip
+    }
 }
 
 function timeToSeconds(t) {

@@ -2,7 +2,7 @@
     /* Color Palette */
     --bg-color: #222;
     --text-color: #ccc;
-    --primary-color: #039e64;
+    --primary-color: #7e735f;
     --secondary-color: #dfe6e9;
     --accent-color: #d63031;
     --highlight-color: #fff9db;
@@ -50,9 +50,7 @@ body {
     position: sticky;
     top: 0;
     width: 100%;
-    background: #000;
     z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     clip-path: inset(0% 0% -100px 0%);
 }
 
@@ -90,12 +88,10 @@ video {
 
 /* --- Subtitle Overlay (asbplayer style) --- */
 #subtitle-overlay {
-    position: absolute;
-    bottom: -50px;
-    left: 0;
-    right: 0;
+    position: relative;
     text-align: center;
     pointer-events: none;
+    padding: 0.6rem 15px 1rem;
     padding: 0 15px;
 }
 
@@ -131,12 +127,12 @@ video {
 }
 
 .progress-bar {
+    position: relative;
     width: 100%;
-    height: 12px;
+    height: 16px;
     background: #485460;
     border-radius: 4px;
     cursor: pointer;
-    position: relative;
     overflow: hidden;
 }
 
@@ -144,20 +140,21 @@ video {
     height: 100%;
     background: var(--primary-color);
     width: 0%;
-    transition: width 0.1s ease;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    transition: width 0.1s ease;
 }
 
-.progress-bar:hover .progress-filled {
-    background: #74b9ff;
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    user-select: none;
 }
 
 .control-buttons {
@@ -169,7 +166,7 @@ video {
 }
 
 .video-controls button {
-    background: #7e735f;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 12px 0;

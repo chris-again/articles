@@ -13,9 +13,16 @@ export function initSupabase() {
         console.error('Supabase client not loaded. Please include the Supabase CDN script.');
         return false;
     }
-    
+
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     return true;
+}
+
+/**
+ * Get the Supabase client instance
+ */
+export function getSupabaseClient() {
+    return supabase;
 }
 
 /**
@@ -41,7 +48,7 @@ export async function markArticleAsRead(articleId) {
             });
 
         if (error) throw error;
-        
+
         console.log(`Article ${articleId} marked as read`);
         return true;
     } catch (error) {
@@ -87,7 +94,7 @@ export async function toggleArticleRead(articleId) {
             });
 
         if (upsertError) throw upsertError;
-        
+
         console.log(`Article ${articleId} toggled to ${newStatus ? 'read' : 'unread'}`);
         return newStatus;
     } catch (error) {
@@ -115,7 +122,7 @@ export async function isArticleRead(articleId) {
             .single();
 
         if (error && error.code !== 'PGRST116') throw error;
-        
+
         return data?.is_read || false;
     } catch (error) {
         console.error('Error checking article status:', error);
@@ -140,7 +147,7 @@ export async function getReadArticles() {
             .eq('is_read', true);
 
         if (error) throw error;
-        
+
         return data.map(item => item.article_id);
     } catch (error) {
         console.error('Error fetching read articles:', error);
@@ -162,14 +169,14 @@ export async function findFirstUnreadIndex(mediaLinks) {
     try {
         const readArticles = await getReadArticles();
         const readSet = new Set(readArticles);
-        
+
         // Find first article not in the read set
         for (let i = 0; i < mediaLinks.length; i++) {
             if (!readSet.has(mediaLinks[i].id)) {
                 return i;
             }
         }
-        
+
         // All articles read, return 0
         return 0;
     } catch (error) {
