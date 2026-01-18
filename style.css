@@ -53,7 +53,7 @@ body {
     background: #000;
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    clip-path: inset(0% 0% -100px 0%);
 }
 
 /* Hide the DONE badge by default */
