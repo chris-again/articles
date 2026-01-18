@@ -1,7 +1,7 @@
 :root {
     /* Color Palette */
-    --bg-color: #fcfcfc;
-    --text-color: #2d3436;
+    --bg-color: #222;
+    --text-color: #ccc;
     --primary-color: #039e64;
     --secondary-color: #dfe6e9;
     --accent-color: #d63031;
@@ -83,9 +83,9 @@ body {
 
 video {
     width: 100%;
-    height: var(--video-height);
+    /* height: var(--video-height); */
     display: block;
-    background: #000;
+    background: var(--bg-color);
 }
 
 /* --- Subtitle Overlay (asbplayer style) --- */
@@ -100,7 +100,7 @@ video {
 }
 
 #subtitle-text {
-    color: #222;
+    color: var(--text-color);
     padding: 8px 16px;
     border-radius: 6px;
     font-family: 'honyaji-reregular', sans-serif;
@@ -193,7 +193,6 @@ video {
     width: 100%;
     background: var(--bg-color);
     padding: 1rem 1.5rem;
-    border-bottom: 2px solid var(--secondary-color);
 }
 
 .lesson-header h1 {
