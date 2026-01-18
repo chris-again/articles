@@ -1,0 +1,165 @@
+:root {
+    /* Color Palette */
+    --bg-color: #fcfcfc;
+    --text-color: #2d3436;
+    --primary-color: #0984e3;
+    --secondary-color: #dfe6e9;
+    --accent-color: #d63031;
+    --highlight-color: #fff9db;
+
+    /* Layout Constants */
+    --video-height: clamp(180px, 35vh, 450px);
+    --content-width: clamp(320px, 95vw, 850px);
+    --font-base: clamp(1rem, 1.1rem + 0.4vw, 1.4rem);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Meiryo", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+
+/* --- Layout --- */
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: var(--content-width);
+    margin: 0 auto;
+}
+
+/* --- Sticky Video Section --- */
+.video-container {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: #000;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+video {
+    width: 100%;
+    height: var(--video-height);
+    display: block;
+    background: #000;
+}
+
+/* --- Subtitle Overlay (asbplayer style) --- */
+#subtitle-overlay {
+    position: absolute;
+    bottom: 90px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    pointer-events: none;
+    padding: 0 15px;
+}
+
+#subtitle-text {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: clamp(1rem, 4.5vw, 1.3rem);
+    display: inline-block;
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px #000;
+    pointer-events: auto;
+    user-select: text;
+}
+
+#subtitle-text:empty {
+    display: none;
+}
+
+/* --- Video Controls --- */
+/* Update video-controls to stack vertically */
+.video-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.8rem;
+    background: #1e272e;
+}
+
+.progress-bar-container {
+    width: 100%;
+    padding: 0 0.5rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #485460;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-filled {
+    height: 100%;
+    background: var(--primary-color);
+    width: 0%;
+    transition: width 0.1s ease;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar:hover .progress-filled {
+    background: #74b9ff;
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(0.5rem, 3vw, 1.5rem);
+}
+
+.video-controls button {
+    background: #485460;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.video-controls button:active {
+    background: var(--primary-color);
+}
+
+.lesson-header {
+    width: 100%;
+    background: var(--bg-color);
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.lesson-header h1 {
+    font-size: clamp(1rem, 2vw, 1.8rem);
+    color: var(--text-color);
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;     
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
