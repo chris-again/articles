@@ -1,11 +1,19 @@
+// app.js
 import { mediaLinks } from './media_data.js';
+import {
+    initSupabase,
+    toggleArticleRead,
+    isArticleRead,
+    findFirstUnreadIndex
+} from './progress.js';
 
 // --- State Management ---
 const state = {
     currentIndex: 0,
     currentCues: [],
     isLoaded: false,
-    currentTitle: ""
+    currentTitle: "",
+    isCurrentArticleRead: false
 };
 
 // --- DOM Elements ---
@@ -20,14 +28,26 @@ const dom = {
     btnForward: document.getElementById('btn-forward'),
     btnVideoPrev: document.getElementById('btn-video-prev'),
     btnVideoNext: document.getElementById('btn-video-next'),
+    videoContainer: document.querySelector('.video-container')
 };
 
 // --- Initialization ---
 init();
 
-function init() {
-    prepareMedia(0); // Setup Lesson 1 in standby
+async function init() {
+    // Initialize Supabase
+    const supabaseReady = initSupabase();
 
+    if (supabaseReady) {
+        // Find first unread article and start there
+        const firstUnreadIndex = await findFirstUnreadIndex(mediaLinks);
+        await prepareMedia(firstUnreadIndex);
+    } else {
+        // Fallback if Supabase fails
+        await prepareMedia(0);
+    }
+
+    // Event listeners
     dom.btnPlay.addEventListener('click', handlePlayClick);
     dom.btnRewind.addEventListener('click', () => skip(-5));
     dom.btnForward.addEventListener('click', () => skip(5));
@@ -35,10 +55,12 @@ function init() {
     dom.btnVideoNext.addEventListener('click', () => navigateMedia(1));
     dom.video.addEventListener('timeupdate', handleTimeUpdate);
     dom.progressBar.addEventListener('click', handleProgressClick);
+    dom.videoContainer.addEventListener('dblclick', handleDoneToggle);
+    document.body.addEventListener('click', handleBodyClick);
     window.addEventListener('keydown', handleKeydown);
 }
 
-function prepareMedia(index) {
+async function prepareMedia(index) {
     state.currentIndex = index;
     state.isLoaded = false;
     state.currentCues = [];
@@ -51,21 +73,45 @@ function prepareMedia(index) {
     dom.btnPlay.textContent = "▶";
     dom.subOverlay.textContent = "";
 
-    // 1. Get title from the titleMap using the ID from mediaLinks
-    // 2. Fallback to a default string if the ID isn't in the map
+    // Get title from titleMap
     const mappedTitle = window.titleMap[item.id];
     state.currentTitle = mappedTitle ? mappedTitle : `Lesson ${item.id}`;
-
-    // Update the UI
     dom.lessonTitle.textContent = state.currentTitle;
+
+    // Check if article is read and update UI
+    state.isCurrentArticleRead = await isArticleRead(item.id);
+    updateDoneBadge();
 
     updateNavigationButtons();
 }
 
 /**
- * Triggered by the Play button.
- * Only loads resources if the 'isLoaded' flag is false.
+ * Update the "DONE" badge visibility
  */
+function updateDoneBadge() {
+    if (state.isCurrentArticleRead) {
+        dom.videoContainer.classList.add('article-done');
+    } else {
+        dom.videoContainer.classList.remove('article-done');
+    }
+}
+
+/**
+ * Handle double-click on video container to toggle "done" status
+ */
+async function handleDoneToggle(e) {
+    // Don't toggle if clicking on controls
+    if (e.target.closest('.video-controls') || e.target.closest('button')) {
+        return;
+    }
+
+    const item = mediaLinks[state.currentIndex];
+    const newStatus = await toggleArticleRead(item.id);
+
+    state.isCurrentArticleRead = newStatus;
+    updateDoneBadge();
+}
+
 async function handlePlayClick() {
     if (!state.isLoaded) {
         await startLoadingResources();
@@ -93,8 +139,6 @@ async function startLoadingResources() {
         console.error('Error loading resources:', e);
     }
 }
-
-// --- Logic Helpers ---
 
 function togglePlay() {
     if (dom.video.paused) {
@@ -131,6 +175,17 @@ function handleProgressClick(e) {
     dom.video.currentTime = newTime;
 }
 
+function handleBodyClick(e) {
+    // Check if click is outside the video-container
+    if (!dom.videoContainer.contains(e.target)) {
+        if (!state.isLoaded) {
+            handlePlayClick();
+        } else {
+            togglePlay();
+        }
+    }
+}
+
 function parseVTT(text) {
     const lines = text.split(/\r?\n/);
     const cues = [];
@@ -149,10 +204,10 @@ function parseVTT(text) {
     return cues;
 }
 
-function navigateMedia(direction) {
+async function navigateMedia(direction) {
     const newIndex = state.currentIndex + direction;
     if (newIndex >= 0 && newIndex < mediaLinks.length) {
-        prepareMedia(newIndex);
+        await prepareMedia(newIndex);
     }
 }
 

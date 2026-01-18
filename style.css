@@ -2,7 +2,7 @@
     /* Color Palette */
     --bg-color: #fcfcfc;
     --text-color: #2d3436;
-    --primary-color: #0984e3;
+    --primary-color: #039e64;
     --secondary-color: #dfe6e9;
     --accent-color: #d63031;
     --highlight-color: #fff9db;
@@ -19,11 +19,21 @@
     padding: 0;
 }
 
+@font-face {
+    font-family: 'honyaji-reregular';
+    src: url('honyaji-re-webfont.woff2') format('woff2'),
+        url('honyaji-re-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 body {
     font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Meiryo", sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
 /* --- Layout --- */
@@ -43,6 +53,32 @@ body {
     background: #000;
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Hide the DONE badge by default */
+.video-container::before {
+    content: "DONE";
+    position: absolute;
+    top: 13px;
+    right: -41px;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    opacity: 0.2;
+    font-weight: bold;
+    padding: 2px 40px;
+    transform: rotate(45deg);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-family: 'honyaji-reregular', sans-serif;
+    letter-spacing: 1px;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* Show the DONE badge when article is marked as read */
+.video-container.article-done::before {
+    opacity: 0.9;
 }
 
 video {
@@ -55,7 +91,7 @@ video {
 /* --- Subtitle Overlay (asbplayer style) --- */
 #subtitle-overlay {
     position: absolute;
-    bottom: 90px;
+    bottom: -50px;
     left: 0;
     right: 0;
     text-align: center;
@@ -64,14 +100,13 @@ video {
 }
 
 #subtitle-text {
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 6px 14px;
+    color: #222;
+    padding: 8px 16px;
     border-radius: 6px;
-    font-size: clamp(1rem, 4.5vw, 1.3rem);
+    font-family: 'honyaji-reregular', sans-serif;
+    font-size: clamp(1.2rem, 6vw, 1.5rem);
     display: inline-block;
     line-height: 1.4;
-    text-shadow: 1px 1px 2px #000;
     pointer-events: auto;
     user-select: text;
 }
@@ -129,18 +164,25 @@ video {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(0.5rem, 3vw, 1.5rem);
+    gap: 8px;
+    width: 100%;
 }
 
 .video-controls button {
-    background: #485460;
+    background: #7e735f;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 0;
     border-radius: 8px;
     font-size: 1.1rem;
     cursor: pointer;
     touch-action: manipulation;
+
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .video-controls button:active {
@@ -159,7 +201,7 @@ video {
     color: var(--text-color);
     margin: 0;
     text-align: center;
-    white-space: nowrap;     
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
