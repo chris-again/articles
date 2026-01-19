@@ -180,7 +180,16 @@ function handleTimeUpdate() {
     const newText = activeCue ? activeCue.text : "";
     if (dom.subOverlay.textContent !== newText) {
         dom.subOverlay.textContent = newText;
+
+        requestAnimationFrame(() => {
+            autoFitSubtitleText(dom.subOverlay, {
+                maxFontSize: 34,
+                minFontSize: 16,
+                maxHeightRatio: 0.28
+            });
+        });
     }
+
 
     // 4. UI: Progress bar update
     const percent = (time / dom.video.duration) * 100;
@@ -261,5 +270,24 @@ function handleKeydown(e) {
     if (state.isLoaded) {
         if (e.key === "ArrowLeft") skip(-5);
         if (e.key === "ArrowRight") skip(5);
+    }
+}
+
+
+function autoFitSubtitleText(element, {
+    maxFontSize = 34,
+    minFontSize = 16,
+    maxHeightRatio = 0.28
+} = {}) {
+    if (!element || !element.textContent) return;
+
+    const maxHeight = window.innerHeight * maxHeightRatio;
+
+    let fontSize = maxFontSize;
+    element.style.fontSize = fontSize + 'px';
+
+    while (fontSize > minFontSize && element.scrollHeight > maxHeight) {
+        fontSize--;
+        element.style.fontSize = fontSize + 'px';
     }
 }
